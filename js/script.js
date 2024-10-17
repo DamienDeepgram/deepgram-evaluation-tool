@@ -33,14 +33,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     //   autoRowSize: true,
       contextMenu: {
         items: {
-            ...Handsontable.plugins.ContextMenu.DEFAULT_ITEMS,
           "reprocessAudio": {
             name: 'Reprocess Audio',
             callback: (key, options) => {
               const rowIndex = options[0].start.row;
               reprocessAudio(rowIndex);
             }
-          }
+          },
+          ...Handsontable.plugins.ContextMenu.DEFAULT_ITEMS,
         }
       },
       height: '100%', 

@@ -26,6 +26,11 @@ function addAudioRecorder(td, rowIndex) {
           td.innerHTML = '';
           createAudioElement(td, base64Audio);
           hot.setDataAtCell(rowIndex, 0, base64Audio); // Save the audio to the table
+
+          // Show "Processing audio please wait..." in the transcript cells
+          hot.setDataAtCell(rowIndex, 2, "Processing audio please wait..."); // Deepgram Batch column
+          hot.setDataAtCell(rowIndex, 3, "Processing audio please wait..."); // Deepgram Streaming column
+
   
           const apiParams = hot.getDataAtCell(rowIndex, 1); // Get API Params column value
   
@@ -66,6 +71,10 @@ function addAudioRecorder(td, rowIndex) {
             td.innerHTML = '';
             createAudioElement(td, base64Audio);
             hot.setDataAtCell(rowIndex, 0, base64Audio); // Save the audio data in the table
+
+            // Show "Processing audio please wait..." in the transcript cells
+            hot.setDataAtCell(rowIndex, 2, "Processing audio please wait...");
+            hot.setDataAtCell(rowIndex, 3, "Processing audio please wait...");
   
             const apiParams = hot.getDataAtCell(rowIndex, 1); // API Params column
             
@@ -125,10 +134,14 @@ async function reprocessAudio(rowIndex) {
     const base64Audio = hot.getDataAtCell(rowIndex, 0); // Get the stored base64 audio
     const apiParams = hot.getDataAtCell(rowIndex, 1); // Get the API Params
     
-    if (!base64Audio || !apiParams) {
+    if (!base64Audio) {
       alert('No audio or API parameters found for this row.');
       return;
     }
+
+    // Show "Processing audio please wait..." in the transcript cells
+    hot.setDataAtCell(rowIndex, 2, "Processing audio please wait...");
+    hot.setDataAtCell(rowIndex, 3, "Processing audio please wait...");
   
     // Convert base64 to Blob (WAV file)
     const byteString = atob(base64Audio.split(',')[1]);
