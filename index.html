@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deepgram Evaluation Tool</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <h1>Deepgram Evaluation Tool</h1>
+      <nav>
+        <a href="https://developers.deepgram.com/reference/deepgram-api-overview" target="_blank">API</a>
+        <a href="https://developers.deepgram.com/docs/introduction" target="_blank">Docs</a>
+        <a href="https://playground.deepgram.com/" target="_blank">Playground</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <button id="export-btn">Export Data</button>
+      <input type="file" id="load-input" style="display:none" />
+      <button id="load-btn">Load Data</button>
+    </div>
+  </header>
+
+  <div id="spreadsheet"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+  <script src="js/deepgram.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/script.js"></script>
+
+</body>
+</html>
