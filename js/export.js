@@ -72,17 +72,25 @@ async function openDB() {
   // Use IndexedDB in place of localStorage
   async function saveData() {
     const data = hot.getData();
-    const jsonData = JSON.stringify(data);
+    // Filter out empty rows
+    const nonEmptyData = data.filter(row => {
+        // Check if any cell in the row contains non-empty content
+        return row.some(cell => cell !== null && cell !== '');
+    });
+    const jsonData = JSON.stringify(nonEmptyData);
     await saveToIndexedDB(jsonData);
   }
   
   async function getInitialData() {
     const storedData = await loadFromIndexedDB();
+    const additionalEmptyRows = Array.from({ length: 100 }, () => ["", "", "", "", "", "", ""]); // 100 additional empty rows
+
     if (storedData) {
-      return JSON.parse(storedData);
+        const storedJsonData = JSON.parse(storedData);
+        const newRows = storedJsonData.concat(additionalEmptyRows);
+        return newRows; // Combine stored data with empty rows
     } else {
-      const additionalEmptyRows = Array.from({ length: 100 }, () => ["", "", "", "", "", "", ""]); // 100 additional empty rows
-      return [...additionalEmptyRows];
+        return [...additionalEmptyRows];
     }
   }
   

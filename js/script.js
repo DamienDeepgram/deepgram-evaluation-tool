@@ -2,9 +2,10 @@
 const container = document.getElementById('spreadsheet');
 let hot; // Declare 'hot' before it's initialized
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const data = await getInitialData();
   hot = new Handsontable(container, {
-    data: getInitialData(), // Initialize with data from local storage plus 100 empty rows
+    data: data, // Initialize with data from local storage plus 100 empty rows
     colHeaders: [
       "Audio Recorder", 
       "API Params", 
@@ -49,14 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     saveData();
   });
 });
-
-// Initialize with data from local storage plus 100 empty rows
-function getInitialData() {
-  const storedData = JSON.parse(localStorage.getItem("spreadsheetData")) || [];
-  const additionalEmptyRows = Array.from({ length: 100 }, () => ["", "", "", "", "", "", ""]); // 100 additional empty rows
-
-  return [...storedData, ...additionalEmptyRows]; // Combine stored data with empty rows
-}
 
 // Custom renderer to handle the display of audio elements in the first column
 // Custom renderer to handle the display of audio elements in the first column
