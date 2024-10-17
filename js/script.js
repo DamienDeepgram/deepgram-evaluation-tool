@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
     columns: [
       { readOnly: true, renderer: customRenderer, width: 320 }, // Fixed width of 320px for the first column
       { editor: 'text' }, // API Params
-      { editor: 'text' }, // Deepgram Batch column (read-only)
-      { editor: 'text' }, // Deepgram Streaming column (read-only)
+      { editor: 'text', readOnly: true }, // Deepgram Batch column (read-only)
+      { editor: 'text', readOnly: true }, // Deepgram Streaming column (read-only)
       { editor: 'text' }, // Truth Transcript
       { editor: 'text' }, // Comments
       { editor: 'text' }, // Notes
