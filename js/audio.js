@@ -121,6 +121,43 @@ function saveData(hot) {
     localStorage.setItem("spreadsheetData", JSON.stringify(data));
 }
 
+async function reprocessAudio(rowIndex) {
+    const base64Audio = hot.getDataAtCell(rowIndex, 0); // Get the stored base64 audio
+    const apiParams = hot.getDataAtCell(rowIndex, 1); // Get the API Params
+    
+    if (!base64Audio || !apiParams) {
+      alert('No audio or API parameters found for this row.');
+      return;
+    }
+  
+    // Convert base64 to Blob (WAV file)
+    const byteString = atob(base64Audio.split(',')[1]);
+    const mimeString = base64Audio.split(',')[0].split(':')[1].split(';')[0];
+    const buffer = new ArrayBuffer(byteString.length);
+    const uintArray = new Uint8Array(buffer);
+  
+    for (let i = 0; i < byteString.length; i++) {
+      uintArray[i] = byteString.charCodeAt(i);
+    }
+  
+    const blob = new Blob([buffer], { type: mimeString });
+    const file = new File([blob], 'reprocessed_audio.wav', { type: 'audio/wav' });
+  
+    // Send the audio file to the API
+    try {
+      const { batchTranscript, streamingTranscript } = await uploadAudio(file, apiParams);
+  
+      // Update the results
+      hot.setDataAtCell(rowIndex, 2, batchTranscript); // Update Deepgram Batch column
+      hot.setDataAtCell(rowIndex, 3, streamingTranscript); // Update Deepgram Streaming column
+  
+      saveData(); // Save the table data to localStorage
+    } catch (error) {
+      console.error('Error reprocessing audio:', error);
+    }
+  }
+  
+
 // Attach functions to the global `window` object
 window.addAudioRecorder = addAudioRecorder;
 window.createAudioElement = createAudioElement;
