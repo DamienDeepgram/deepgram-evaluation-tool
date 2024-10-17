@@ -59,19 +59,24 @@ function getInitialData() {
 }
 
 // Custom renderer to handle the display of audio elements in the first column
+// Custom renderer to handle the display of audio elements in the first column
+// Custom renderer to handle the display of audio elements in the first column
 function customRenderer(instance, td, row, col, prop, value, cellProperties) {
-  td.innerHTML = ''; // Clear cell content
-
-  if (value && value.startsWith('data:audio')) { // Check if the value is a base64 audio string
-    const audioElement = document.createElement('audio');
-    audioElement.controls = true;
-    audioElement.src = value;
-    td.appendChild(audioElement);
-  } else {
-    const recordButton = addAudioRecorder(row); // Create a record button if no audio exists
-    td.appendChild(recordButton);
+    td.innerHTML = ''; // Clear cell content
+  
+    // If there is base64 audio data, create an audio element
+    if (value && value.startsWith('data:audio')) {
+      const audioElement = document.createElement('audio');
+      audioElement.controls = true;
+      audioElement.src = value; // Set the base64 string as the audio source
+      td.appendChild(audioElement);
+    } else {
+      const recordButton = addAudioRecorder(td, row); // If no audio, create a record button
+      td.appendChild(recordButton);
+    }
   }
-}
+  
+  
 
 // Save data to local storage
 function saveData() {

@@ -1,4 +1,4 @@
-function addAudioRecorder(rowIndex) {
+function addAudioRecorder(td, rowIndex) {
     const recordButton = document.createElement("button");
     recordButton.innerText = "Record";
     recordButton.classList.add("audio-btn");
@@ -6,6 +6,43 @@ function addAudioRecorder(rowIndex) {
     let mediaRecorder;
     let chunks = [];
     let isRecording = false;
+  
+    td.setAttribute('draggable', true);
+    td.addEventListener('dragover', (e) => e.preventDefault()); // Prevent default behavior
+    td.addEventListener('drop', (e) => handleFileDrop(e, rowIndex, td)); // Handle file drop
+  
+    // Handle file drop functionality
+    function handleFileDrop(event, rowIndex, td) {
+      event.preventDefault();
+      
+      const file = event.dataTransfer.files[0];
+      if (file && file.type.startsWith('audio/')) {
+        // Read the dropped audio file as a base64 string
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const base64Audio = e.target.result;
+  
+          // Replace the record button with an audio player
+          td.innerHTML = '';
+          createAudioElement(td, base64Audio);
+          hot.setDataAtCell(rowIndex, 0, base64Audio); // Save the audio to the table
+  
+          const apiParams = hot.getDataAtCell(rowIndex, 1); // Get API Params column value
+  
+          // Send the dropped file to the API
+          try {
+            const { batchTranscript, streamingTranscript } = await uploadAudio(file, apiParams);
+            hot.setDataAtCell(rowIndex, 2, batchTranscript); // Update Deepgram Batch column
+            hot.setDataAtCell(rowIndex, 3, streamingTranscript); // Update Deepgram Streaming column
+          } catch (error) {
+            console.error('Error uploading dropped audio:', error);
+          }
+  
+          saveData(); // Save the table data to local storage
+        };
+        reader.readAsDataURL(file); // Read the file
+      }
+    }
   
     // Function to start or stop recording
     recordButton.addEventListener("click", async () => {
@@ -20,33 +57,32 @@ function addAudioRecorder(rowIndex) {
         mediaRecorder.onstop = () => {
           const blob = new Blob(chunks, { type: 'audio/wav' });
           const file = new File([blob], 'recording.wav', { type: 'audio/wav' });
-
-          // Transcribe the audio
-          setTimeout(async () => {
-            const apiParams = hot.getDataAtCell(rowIndex, 1); // API Params column
-            try {
-                // Call the uploadAudio function from deepgram.js
-                const { batchTranscript, streamingTranscript } = await uploadAudio(file, apiParams);
-    
-                // Update Deepgram Batch and Deepgram Streaming columns
-                hot.setDataAtCell(rowIndex, 2, batchTranscript); // Update Deepgram Batch column
-                hot.setDataAtCell(rowIndex, 3, streamingTranscript); // Update Deepgram Streaming column
-            } catch (error) {
-                console.error('Failed to upload audio and process transcripts:', error);
-            }
-            }, 0);
-
-          // Save the Audio
+  
+          // Replace the button with an audio element and save the base64 data
           const reader = new FileReader();
           reader.readAsDataURL(blob);
-          reader.onloadend = () => {
+          reader.onloadend = async () => {
             const base64Audio = reader.result;
+            td.innerHTML = '';
+            createAudioElement(td, base64Audio);
+            hot.setDataAtCell(rowIndex, 0, base64Audio); // Save the audio data in the table
   
-            // Save the base64Audio directly in the table
-            hot.setDataAtCell(rowIndex, 0, base64Audio);
+            const apiParams = hot.getDataAtCell(rowIndex, 1); // API Params column
+            
+            try {
+              // Call the uploadAudio function from deepgram.js
+              const { batchTranscript, streamingTranscript } = await uploadAudio(file, apiParams);
   
-            saveData();  // Save to local storage
+              // Update Deepgram Batch and Deepgram Streaming columns
+              hot.setDataAtCell(rowIndex, 2, batchTranscript); // Update Deepgram Batch column
+              hot.setDataAtCell(rowIndex, 3, streamingTranscript); // Update Deepgram Streaming column
+            } catch (error) {
+              console.error('Failed to upload audio and process transcripts:', error);
+            }
+  
+            saveData();  // Save the updated table data to local storage
           };
+  
           isRecording = false;
           recordButton.classList.remove("recording");
           recordButton.innerText = "Record";
@@ -60,9 +96,9 @@ function addAudioRecorder(rowIndex) {
     });
   
     return recordButton;
-}
+  }
   
-  
+
 function createAudioElement(td, base64Audio) {
     const audioElement = document.createElement("audio");
     audioElement.controls = true;
