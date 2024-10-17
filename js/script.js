@@ -75,11 +75,3 @@ function customRenderer(instance, td, row, col, prop, value, cellProperties) {
       td.appendChild(recordButton);
     }
   }
-  
-  
-
-// Save data to local storage
-function saveData() {
-  const data = hot.getData();
-  localStorage.setItem("spreadsheetData", JSON.stringify(data));
-}
