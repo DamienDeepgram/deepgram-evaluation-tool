@@ -125,11 +125,6 @@ function reloadStoredAudio(hot) {
     }
 }
 
-function saveData(hot) {
-    const data = hot.getData();
-    localStorage.setItem("spreadsheetData", JSON.stringify(data));
-}
-
 async function reprocessAudio(rowIndex) {
     const base64Audio = hot.getDataAtCell(rowIndex, 0); // Get the stored base64 audio
     const apiParams = hot.getDataAtCell(rowIndex, 1); // Get the API Params
@@ -169,11 +164,4 @@ async function reprocessAudio(rowIndex) {
       console.error('Error reprocessing audio:', error);
     }
   }
-  
-
-// Attach functions to the global `window` object
-window.addAudioRecorder = addAudioRecorder;
-window.createAudioElement = createAudioElement;
-window.reloadStoredAudio = reloadStoredAudio;
-window.saveData = saveData;
   

@@ -1,12 +1,15 @@
 // Initialize Handsontable
 const container = document.getElementById('spreadsheet');
 let hot; // Declare 'hot' before it's initialized
-
+let columnWidths = [320, 250, 250, 250, 250, 250, 250];
 document.addEventListener("DOMContentLoaded", async () => {
     const initialData = await getInitialData(); // Load data from IndexedDB
+    if(initialData.settings && initialData.settings.columnWidths){
+        columnWidths = initialData.settings.columnWidths;
+    }
   
     hot = new Handsontable(container, {
-      data: initialData, // Load initial data into Handsontable
+      data: initialData.data, // Load initial data into Handsontable
       colHeaders: [
         "Audio Recorder", 
         "API Params", 
@@ -28,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       manualColumnResize: true, // Allow column resizing
       manualRowResize: true, // Allow row resizing
       stretchH: 'all',
-      colWidths: [320, 250, 250, 250, 250, 250, 250],
+      colWidths: columnWidths,
       rowHeaders: true,
     //   autoRowSize: true,
       contextMenu: {
@@ -102,11 +105,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     */
 
-    hot.addHook('afterRowResize', function(currentRow, newSize) {
-        console.log('Row resized:', currentRow, 'New size:', newSize);
-        saveData(); // Save the data with the new row sizes
-      });
+    // hot.addHook('afterRowResize', function(currentRow, newSize) {
+    //     console.log('Row resized:', currentRow, 'New size:', newSize);
+    //     saveData(); // Save the data with the new row sizes
+    //   });
       
+        // Save column widths on resize
+    hot.addHook('afterColumnResize', function (width, index) {
+        columnWidths[index] = width;
+        saveData(); // Save data and settings when columns are resized
+    });
   
     // Trigger saveData when changes occur
     hot.addHook('afterChange', function () {

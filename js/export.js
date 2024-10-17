@@ -71,26 +71,41 @@ async function openDB() {
   
   // Use IndexedDB in place of localStorage
   async function saveData() {
-    const data = hot.getData();
-    // Filter out empty rows
-    const nonEmptyData = data.filter(row => {
-        // Check if any cell in the row contains non-empty content
-        return row.some(cell => cell !== null && cell !== '');
-    });
-    const jsonData = JSON.stringify(nonEmptyData);
-    await saveToIndexedDB(jsonData);
+    const data = hot.getData(); // Get the current table data
+  
+    const settings = { columnWidths }; // Create a settings object that can store more settings later
+  
+    const jsonData = JSON.stringify({ data, settings }); // Store both data and settings
+  
+    try {
+      const db = await openDB(); // Open the IndexedDB database
+      const tx = db.transaction('dataStore', 'readwrite');
+      tx.objectStore('dataStore').put(jsonData, 'spreadsheetData'); // Store data and settings in IndexedDB
+      await tx.done; // Wait for transaction to complete
+    } catch (e) {
+      console.error('Error saving data to IndexedDB:', e);
+    }
   }
+  
   
   async function getInitialData() {
     const storedData = await loadFromIndexedDB();
     const additionalEmptyRows = Array.from({ length: 100 }, () => ["", "", "", "", "", "", ""]); // 100 additional empty rows
-
+  
     if (storedData) {
-        const storedJsonData = JSON.parse(storedData);
-        const newRows = storedJsonData.concat(additionalEmptyRows);
-        return newRows; // Combine stored data with empty rows
+      let { data, settings } = JSON.parse(storedData); // Parse stored data and settings
+      if(!data || !settings){
+        data = JSON.parse(storedData);
+        settings = {columnWidths: [320, 250, 250, 250, 250, 250, 250]};
+      }
+      const newRows = data.concat(additionalEmptyRows); // Combine stored data with additional empty rows
+  
+      return { data: newRows, settings }; // Return combined rows and settings
     } else {
-        return [...additionalEmptyRows];
+      return {
+        data: [...additionalEmptyRows], // Only empty rows if no stored data
+        settings: { columnWidths: [320, 250, 250, 250, 250, 250, 250] } // Default settings with empty colWidths
+      };
     }
   }
   
